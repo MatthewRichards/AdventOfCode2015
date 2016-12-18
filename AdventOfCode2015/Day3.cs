@@ -11,14 +11,17 @@ namespace AdventOfCode2015
   {
     public void Run()
     {
-      var position = Tuple.Create(0, 0);
-      var visitedHouses = new HashSet<Tuple<int, int>> { position };
+      var initialPosition = Tuple.Create(0, 0);
+      var positions = new Queue<Tuple<int, int>>(new [] { initialPosition, initialPosition });
+      var visitedHouses = new HashSet<Tuple<int, int>> { initialPosition };
 
       var xMoves = new Dictionary<char, int> { { '^', -1 }, { 'v', 1 } };
       var yMoves = new Dictionary<char, int> { { '>', 1 }, { '<', -1 } };
 
       foreach (var move in Input)
       {
+        var position = positions.Dequeue();
+
         position = Tuple.Create(
           position.Item1 + (xMoves.ContainsKey(move) ? xMoves[move] : 0),
           position.Item2 + (yMoves.ContainsKey(move) ? yMoves[move] : 0));
@@ -27,6 +30,8 @@ namespace AdventOfCode2015
         {
           visitedHouses.Add(position);
         }
+
+        positions.Enqueue(position);
       }
 
       Console.WriteLine($"Houses visited: {visitedHouses.Count}");
