@@ -16,5 +16,14 @@ namespace AdventOfCode2015
         cachedInput.Where((val, idx) => idx % 2 == 0),
         cachedInput.Where((val, idx) => idx % 2 == 1));
     }
+
+    public static IEnumerable<byte> ToNibbles(this IEnumerable<byte> input)
+    {
+      foreach (byte b in input)
+      {
+        yield return (byte)(b >> 4);
+        yield return (byte)(b & 0xF);
+      }
+    }
   }
 }
