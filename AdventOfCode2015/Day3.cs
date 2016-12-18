@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AdventOfCode2015
@@ -12,28 +13,25 @@ namespace AdventOfCode2015
     public void Run()
     {
       var initialPosition = Tuple.Create(0, 0);
-      var positions = new Queue<Tuple<int, int>>(new [] { initialPosition, initialPosition });
       var visitedHouses = new HashSet<Tuple<int, int>> { initialPosition };
 
-      var xMoves = new Dictionary<char, int> { { '^', -1 }, { 'v', 1 } };
-      var yMoves = new Dictionary<char, int> { { '>', 1 }, { '<', -1 } };
+      var xMoves = new Dictionary<char, int> { { '^', -1 }, { 'v', 1 }, { '>', 0 }, { '<', 0 } };
+      var yMoves = new Dictionary<char, int> { { '^', 0 }, { 'v', 0 }, { '>', 1 }, { '<', -1 } };
 
-      foreach (var move in Input)
-      {
-        var position = positions.Dequeue();
+      Func<Tuple<int, int>, char, Tuple<int, int>> visitingAlgorithm = (pos, move) => {
+        var newPosition = Tuple.Create(pos.Item1 + xMoves[move], pos.Item2 + yMoves[move]);
+        visitedHouses.Add(newPosition);
+        return newPosition;
+      };
 
-        position = Tuple.Create(
-          position.Item1 + (xMoves.ContainsKey(move) ? xMoves[move] : 0),
-          position.Item2 + (yMoves.ContainsKey(move) ? yMoves[move] : 0));
+      var moves = Input.Fork();
 
-        if (!visitedHouses.Contains(position))
-        {
-          visitedHouses.Add(position);
-        }
+      var santaTask = Task.Factory.StartNew(() => moves.Item1.Aggregate(initialPosition, visitingAlgorithm));
+      var roboTask = Task.Factory.StartNew(() => moves.Item2.Aggregate(initialPosition, visitingAlgorithm));
 
-        positions.Enqueue(position);
-      }
-
+      var santaEnd = santaTask.Result;
+      var roboEnd = roboTask.Result;
+      
       Console.WriteLine($"Houses visited: {visitedHouses.Count}");
       Console.ReadKey();
     }
