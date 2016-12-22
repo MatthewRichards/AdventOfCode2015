@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,15 @@ namespace AdventOfCode2015
       var latestSolution = typeof(Program).Assembly.GetTypes().Where(t => t.Name.StartsWith("Day")).OrderByDescending(t => int.Parse(t.Name.Substring(3))).First();
 
       var instance = latestSolution.GetConstructor(new Type[0]).Invoke(new object[0]);
+
+      var clock = new Stopwatch();
+      clock.Start();
+
       latestSolution.GetMethods().Single(m => m.Name == "Run").Invoke(instance, new object[0]);
+
+      clock.Stop();
+      Console.WriteLine($"Time taken: {clock.ElapsedMilliseconds}ms");
+      Console.ReadKey();
     }
   }
 }
